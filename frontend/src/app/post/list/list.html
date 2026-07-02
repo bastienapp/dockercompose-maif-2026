@@ -1,0 +1,12 @@
+@if (posts()) {
+  <ul>
+    @for (eachPost of posts(); track eachPost.id) {
+      <li>
+        <h3>{{ eachPost.title }}</h3>
+        <p>{{ eachPost.content }}</p>
+      </li>
+    }
+  </ul>
+} @else {
+  <p>Loading....</p>
+}

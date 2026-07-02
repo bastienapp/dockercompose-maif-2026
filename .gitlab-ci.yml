@@ -1,0 +1,49 @@
+default:
+  image: node:24-alpine
+
+stages:
+  - build
+  # - linter
+  - deploy
+
+build-nodemodules-job:
+  stage: build
+  script:
+    - cd frontend
+    - npm ci
+  artifacts:
+    paths:
+      - frontend/node_modules
+
+# eslint-job:
+#   stage: linter
+#   script:
+#     - cd frontend
+#     - npm run lint
+
+# prettier-job:
+#   stage: linter
+#   script:
+#     - cd frontend
+#     - npm run prettier
+
+deploy-job:
+  stage: deploy
+  image: node:24
+  before_script:
+    - chmod 400 $SSH_KEY
+  script:
+    - ssh -o StrictHostKeyChecking=no -i $SSH_KEY $DEPLOY_USER@$DEPLOY_SERVER "
+        if [ ! -d live26 ];
+          then git clone https://gitlab.com/bastienapp/dockercompose-live26.git live26;
+        fi;
+        cd live26;
+        git pull;
+        docker compose down;
+        export DB_USER=${DB_USER};
+        export DB_NAME=${DB_NAME};
+        export DB_URL=${DB_URL};
+        export DB_PASSWORD=${DB_PASSWORD};
+        export FRONTEND_PORT=${FRONTEND_PORT};
+        export BACKEND_PORT=${BACKEND_PORT};
+        docker compose up --build --force-recreate -d"

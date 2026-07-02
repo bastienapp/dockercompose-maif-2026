@@ -1,0 +1,50 @@
+services:
+
+  web:
+    build:
+      context: frontend
+      dockerfile: Dockerfile
+      secrets:
+        - npmrc
+    ports:
+      - ${FRONTEND_PORT}:80
+    # attend que le backend soit dispo, pour le proxy
+    depends_on:
+      - spring
+
+  database-docker:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - postgres-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  spring:
+    build:
+      context: backend
+      dockerfile: Dockerfile
+    ports:
+      - ${BACKEND_PORT}:9000
+    environment:
+      SPRING_DATASOURCE_URL: ${DB_URL}
+      SPRING_DATASOURCE_USERNAME: ${DB_USER}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+    depends_on:
+      database-docker:
+        condition: service_healthy
+
+volumes:
+  postgres-data:
+  
+secrets:
+  npmrc:
+    file: ~/.npmrc
