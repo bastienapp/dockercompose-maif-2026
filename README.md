@@ -1,6 +1,6 @@
 # Installation du projet avec Docker
 
-## Création des images
+## Création des images
 
 ```bash
 # création des images avec tous les logs
@@ -13,10 +13,10 @@ docker compose --progress=plain build --no-cache
 # laisser ouvert le terminal le temps de l'exécution
 docker compose up
 
-# faire CTRL + C pour arrêter
+# faire CTRL + C pour arrêter (ne pas le faire avant d'avoir testé le projet dans le navigateur)
 ```
 
-## Overture du projet
+## Ouverture du projet
 
 Le projet est accessible sur l'adresse [http://localhost:3000](http://localhost:3000).
 
